@@ -17,6 +17,7 @@ from phoenix_core.loader import (
     register_plugins_from_core_config,
 )
 from phoenix_core.plugins import PluginRegistry, RegisteredPlugin
+from phoenix_core.repositories import RepositoryStatusOverride, collect_repository_statuses
 from phoenix_core.status import (
     CORE_COMPONENT_NAME,
     CORE_COMPONENT_VERSION,
@@ -41,7 +42,9 @@ __all__ = [
     "PluginRegistry",
     "RegisteredPlugin",
     "RepositoryConfig",
+    "RepositoryStatusOverride",
     "build_core_status",
+    "collect_repository_statuses",
     "load_plugin_factory",
     "register_plugins_from_config",
     "register_plugins_from_core_config",
