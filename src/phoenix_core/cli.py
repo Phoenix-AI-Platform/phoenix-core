@@ -11,6 +11,7 @@ from typing import Any
 from phoenix_core.config import PhoenixCoreConfig
 from phoenix_core.loader import register_plugins_from_core_config
 from phoenix_core.plugins import PluginRegistry
+from phoenix_core.repositories import collect_repository_statuses
 
 PLUGIN_INVENTORY_SCHEMA_VERSION = "phoenix.plugin_inventory.v1"
 
@@ -141,26 +142,18 @@ def print_status(config_path: Path) -> int:
 def print_dashboard(config_path: Path) -> int:
     """Load configured plugins and print read-only dashboard document JSON."""
 
-    from phoenix_core.dashboard import DashboardDocument, DashboardRepositoryStatus
+    from phoenix_core.dashboard import DashboardDocument
     from phoenix_core.status import build_core_status
 
     config = load_core_config(config_path)
     registry = PluginRegistry()
     register_plugins_from_core_config(registry, config)
-    repositories = tuple(
-        DashboardRepositoryStatus(
-            name=repository.name,
-            url=repository.url,
-            default_branch=repository.default_branch,
-        )
-        for repository in config.repositories
-    )
     document = DashboardDocument.from_core_status(build_core_status(registry))
     document = DashboardDocument(
         schema_version=document.schema_version,
         core=document.core,
         plugins=document.plugins,
-        repositories=repositories,
+        repositories=collect_repository_statuses(config.repositories),
     )
     print(json.dumps(document.to_dict(), sort_keys=True))
     return 0
