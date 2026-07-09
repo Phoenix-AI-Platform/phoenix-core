@@ -77,6 +77,7 @@ def test_print_dashboard_outputs_dashboard_document_json(tmp_path, capsys) -> No
     assert payload["core"]["component"] == "phoenix-core"
     assert payload["plugins"][0]["plugin_id"] == "phoenix.office"
     assert payload["repositories"] == []
+    assert payload["project_state"] is None
 
 
 def test_print_dashboard_outputs_static_repositories(tmp_path, capsys) -> None:
@@ -105,6 +106,30 @@ def test_print_dashboard_outputs_static_repositories(tmp_path, capsys) -> None:
             "latest_commit": None,
         }
     ]
+
+
+def test_print_dashboard_outputs_configured_project_state(tmp_path, capsys) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text(
+        (
+            '[project_state]\n'
+            'phase = "Dashboard Foundation"\n'
+            'milestone = "Read-only project visibility"\n'
+            'summary = "Expose safe dashboard data without live external calls."\n'
+        ),
+        encoding="utf-8",
+    )
+
+    exit_code = print_dashboard(config_path)
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["project_state"] == {
+        "phase": "Dashboard Foundation",
+        "milestone": "Read-only project visibility",
+        "summary": "Expose safe dashboard data without live external calls.",
+    }
 
 
 def test_main_inspect_plugins_command(tmp_path, capsys) -> None:
