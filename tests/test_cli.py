@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from phoenix_core.cli import inspect_plugins, main
 
 
@@ -19,6 +21,22 @@ def test_inspect_plugins_prints_configured_plugin_metadata(tmp_path, capsys) -> 
     assert "proposal.generate_docx" in captured.out
 
 
+def test_inspect_plugins_prints_json_inventory(tmp_path, capsys) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text(
+        '[[plugins]]\nfactory_path = "phoenix_office.sdk_adapter:create_plugin"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = inspect_plugins(config_path, output_format="json")
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["plugins"][0]["plugin_id"] == "phoenix.office"
+    assert payload["plugins"][0]["commands"][0]["name"] == "proposal.prepare_fields"
+
+
 def test_main_inspect_plugins_command(tmp_path, capsys) -> None:
     config_path = tmp_path / "phoenix_core.toml"
     config_path.write_text(
@@ -31,3 +49,18 @@ def test_main_inspect_plugins_command(tmp_path, capsys) -> None:
     captured = capsys.readouterr()
     assert exit_code == 0
     assert "phoenix.office" in captured.out
+
+
+def test_main_inspect_plugins_json_format(tmp_path, capsys) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text(
+        '[[plugins]]\nfactory_path = "phoenix_office.sdk_adapter:create_plugin"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(["inspect-plugins", "--config", str(config_path), "--format", "json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["plugins"][0]["name"] == "Phoenix Office"
