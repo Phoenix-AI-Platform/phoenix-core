@@ -11,7 +11,6 @@ from typing import Any
 from phoenix_core.config import PhoenixCoreConfig
 from phoenix_core.loader import register_plugins_from_core_config
 from phoenix_core.plugins import PluginRegistry
-from phoenix_core.status import build_core_status
 
 PLUGIN_INVENTORY_SCHEMA_VERSION = "phoenix.plugin_inventory.v1"
 
@@ -114,6 +113,8 @@ def inspect_plugins(config_path: Path, output_format: str = "text") -> int:
 
 def print_status(config_path: Path) -> int:
     """Load configured plugins and print read-only Core status JSON."""
+
+    from phoenix_core.status import build_core_status
 
     registry = load_registry(config_path)
     print(json.dumps(build_core_status(registry), sort_keys=True))
