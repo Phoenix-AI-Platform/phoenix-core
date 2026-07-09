@@ -12,6 +12,8 @@ from phoenix_core.config import PhoenixCoreConfig
 from phoenix_core.loader import register_plugins_from_core_config
 from phoenix_core.plugins import PluginRegistry
 
+PLUGIN_INVENTORY_SCHEMA_VERSION = "phoenix.plugin_inventory.v1"
+
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the Phoenix Core CLI parser."""
@@ -60,7 +62,10 @@ def build_plugin_inventory(registry: PluginRegistry) -> dict[str, Any]:
                 ],
             }
         )
-    return {"plugins": plugins}
+    return {
+        "schema_version": PLUGIN_INVENTORY_SCHEMA_VERSION,
+        "plugins": plugins,
+    }
 
 
 def load_registry(config_path: Path) -> PluginRegistry:
