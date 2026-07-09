@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from phoenix_core.cli import inspect_plugins, main
+from phoenix_core.cli import INVENTORY_SCHEMA_VERSION, inspect_plugins, main
 
 
 def test_inspect_plugins_prints_configured_plugin_metadata(tmp_path, capsys) -> None:
@@ -33,6 +33,7 @@ def test_inspect_plugins_prints_json_inventory(tmp_path, capsys) -> None:
     captured = capsys.readouterr()
     payload = json.loads(captured.out)
     assert exit_code == 0
+    assert payload["schema_version"] == INVENTORY_SCHEMA_VERSION
     assert payload["plugins"][0]["plugin_id"] == "phoenix.office"
     assert payload["plugins"][0]["commands"][0]["name"] == "proposal.prepare_fields"
 
@@ -63,4 +64,5 @@ def test_main_inspect_plugins_json_format(tmp_path, capsys) -> None:
     captured = capsys.readouterr()
     payload = json.loads(captured.out)
     assert exit_code == 0
+    assert payload["schema_version"] == INVENTORY_SCHEMA_VERSION
     assert payload["plugins"][0]["name"] == "Phoenix Office"
