@@ -13,6 +13,9 @@ dependencies = [
     "phoenix-sdk @ git+https://github.com/Phoenix-AI-Platform/phoenix-sdk.git",
 ]
 
+[project.scripts]
+phoenix-core = "phoenix_core.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
