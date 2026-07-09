@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from phoenix_core import (
     DASHBOARD_DOCUMENT_SCHEMA_VERSION,
+    UNKNOWN_REPOSITORY_STATUS,
     DashboardDocument,
+    DashboardRepositoryStatus,
     PluginRegistry,
     build_core_status,
     register_plugins_from_config,
@@ -20,6 +22,18 @@ def test_dashboard_document_builds_from_core_status() -> None:
     assert document.core.version == "0.1.0"
     assert document.plugins[0].plugin_id == "phoenix.office"
     assert document.plugins[0].commands[0].name == "proposal.prepare_fields"
+    assert document.repositories == ()
+
+
+def test_dashboard_repository_status_defaults_to_unknown_ci() -> None:
+    repository = DashboardRepositoryStatus(
+        name="phoenix-core",
+        url="https://github.com/Phoenix-AI-Platform/phoenix-core",
+        default_branch="main",
+    )
+
+    assert repository.ci_status == UNKNOWN_REPOSITORY_STATUS
+    assert repository.latest_commit is None
 
 
 def test_dashboard_document_serializes_to_deterministic_dict() -> None:
@@ -56,4 +70,33 @@ def test_dashboard_document_serializes_to_deterministic_dict() -> None:
                 ],
             }
         ],
+        "repositories": [],
     }
+
+
+def test_dashboard_document_serializes_repository_placeholders() -> None:
+    document = DashboardDocument(
+        schema_version=DASHBOARD_DOCUMENT_SCHEMA_VERSION,
+        core=DashboardDocument.from_core_status({
+            "core": {"component": "phoenix-core", "version": "0.1.0"},
+            "plugin_inventory": {"plugins": []},
+        }).core,
+        plugins=(),
+        repositories=(
+            DashboardRepositoryStatus(
+                name="phoenix-core",
+                url="https://github.com/Phoenix-AI-Platform/phoenix-core",
+                default_branch="main",
+            ),
+        ),
+    )
+
+    assert document.to_dict()["repositories"] == [
+        {
+            "name": "phoenix-core",
+            "url": "https://github.com/Phoenix-AI-Platform/phoenix-core",
+            "default_branch": "main",
+            "ci_status": "unknown",
+            "latest_commit": None,
+        }
+    ]
