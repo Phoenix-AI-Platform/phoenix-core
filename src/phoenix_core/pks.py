@@ -46,3 +46,11 @@ def dashboard_project_state_from_pks_record(
         milestone=record.milestone,
         summary=record.summary,
     )
+
+
+def read_dashboard_project_state_from_mapping(
+    values: dict[str, Any],
+) -> DashboardProjectState:
+    """Read dashboard project-state metadata from an already-loaded PKS mapping."""
+
+    return dashboard_project_state_from_pks_record(PKSProjectStateRecord.from_mapping(values))

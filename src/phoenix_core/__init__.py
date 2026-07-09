@@ -22,7 +22,11 @@ from phoenix_core.loader import (
     register_plugins_from_config,
     register_plugins_from_core_config,
 )
-from phoenix_core.pks import PKSProjectStateRecord, dashboard_project_state_from_pks_record
+from phoenix_core.pks import (
+    PKSProjectStateRecord,
+    dashboard_project_state_from_pks_record,
+    read_dashboard_project_state_from_mapping,
+)
 from phoenix_core.plugins import PluginRegistry, RegisteredPlugin
 from phoenix_core.repositories import RepositoryStatusOverride, collect_repository_statuses
 from phoenix_core.status import (
@@ -57,6 +61,7 @@ __all__ = [
     "collect_repository_statuses",
     "dashboard_project_state_from_pks_record",
     "load_plugin_factory",
+    "read_dashboard_project_state_from_mapping",
     "register_plugins_from_config",
     "register_plugins_from_core_config",
 ]
