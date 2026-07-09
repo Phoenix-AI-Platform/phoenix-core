@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 DASHBOARD_DOCUMENT_SCHEMA_VERSION = "phoenix.dashboard_document.v1"
+UNKNOWN_REPOSITORY_STATUS = "unknown"
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +29,17 @@ class DashboardPlugin:
 
 
 @dataclass(frozen=True, slots=True)
+class DashboardRepositoryStatus:
+    """Dashboard placeholder for repository and CI health."""
+
+    name: str
+    url: str
+    default_branch: str
+    ci_status: str = UNKNOWN_REPOSITORY_STATUS
+    latest_commit: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class DashboardCoreSummary:
     """Dashboard view of Phoenix Core metadata."""
 
@@ -42,6 +54,7 @@ class DashboardDocument:
     schema_version: str
     core: DashboardCoreSummary
     plugins: tuple[DashboardPlugin, ...]
+    repositories: tuple[DashboardRepositoryStatus, ...] = ()
 
     @classmethod
     def from_core_status(cls, status: dict[str, Any]) -> DashboardDocument:
@@ -98,5 +111,15 @@ class DashboardDocument:
                     ],
                 }
                 for plugin in self.plugins
+            ],
+            "repositories": [
+                {
+                    "name": repository.name,
+                    "url": repository.url,
+                    "default_branch": repository.default_branch,
+                    "ci_status": repository.ci_status,
+                    "latest_commit": repository.latest_commit,
+                }
+                for repository in self.repositories
             ],
         }
