@@ -15,6 +15,7 @@ from phoenix_core.dashboard import (
     DashboardPluginCommand,
     DashboardProjectState,
     DashboardRepositoryStatus,
+    build_dashboard_document,
 )
 from phoenix_core.loader import (
     PluginLoadError,
@@ -58,6 +59,7 @@ __all__ = [
     "RepositoryConfig",
     "RepositoryStatusOverride",
     "build_core_status",
+    "build_dashboard_document",
     "collect_repository_statuses",
     "dashboard_project_state_from_pks_record",
     "load_plugin_factory",
