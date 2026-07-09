@@ -1,7 +1,14 @@
 from __future__ import annotations
 
 import pytest
-from phoenix_sdk import CommandRequest, CommandResult, PhoenixPlugin, PluginCommand, PluginManifest, ResultStatus
+from phoenix_sdk import (
+    CommandRequest,
+    CommandResult,
+    PhoenixPlugin,
+    PluginCommand,
+    PluginManifest,
+    ResultStatus,
+)
 
 from phoenix_core import PluginRegistry
 
