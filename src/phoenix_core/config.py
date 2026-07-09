@@ -29,11 +29,21 @@ class RepositoryConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class ProjectStateConfig:
+    """Static project-state declaration for dashboard display."""
+
+    phase: str
+    milestone: str
+    summary: str
+
+
+@dataclass(frozen=True, slots=True)
 class PhoenixCoreConfig:
     """Top-level Phoenix Core configuration."""
 
     plugins: tuple[PluginFactoryConfig, ...] = ()
     repositories: tuple[RepositoryConfig, ...] = ()
+    project_state: ProjectStateConfig | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "plugins", tuple(self.plugins))
@@ -87,7 +97,31 @@ class PhoenixCoreConfig:
                 )
             )
 
-        return cls(plugins=tuple(plugin_configs), repositories=tuple(repository_configs))
+        project_state = values.get("project_state")
+        project_state_config = None
+        if project_state is not None:
+            if not isinstance(project_state, dict):
+                raise ValueError("Core config 'project_state' must be a table.")
+            phase = project_state.get("phase")
+            milestone = project_state.get("milestone")
+            summary = project_state.get("summary")
+            if not isinstance(phase, str):
+                raise ValueError("Project state requires a string 'phase'.")
+            if not isinstance(milestone, str):
+                raise ValueError("Project state requires a string 'milestone'.")
+            if not isinstance(summary, str):
+                raise ValueError("Project state requires a string 'summary'.")
+            project_state_config = ProjectStateConfig(
+                phase=phase,
+                milestone=milestone,
+                summary=summary,
+            )
+
+        return cls(
+            plugins=tuple(plugin_configs),
+            repositories=tuple(repository_configs),
+            project_state=project_state_config,
+        )
 
     @classmethod
     def from_toml_file(cls, path: str | Path) -> PhoenixCoreConfig:
