@@ -49,6 +49,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to Phoenix Core TOML config.",
     )
 
+    dashboard_parser = subparsers.add_parser(
+        "dashboard",
+        help="Load approved plugins from config and print dashboard document JSON.",
+    )
+    dashboard_parser.add_argument(
+        "--config",
+        required=True,
+        type=Path,
+        help="Path to Phoenix Core TOML config.",
+    )
+
     return parser
 
 
@@ -121,6 +132,18 @@ def print_status(config_path: Path) -> int:
     return 0
 
 
+def print_dashboard(config_path: Path) -> int:
+    """Load configured plugins and print read-only dashboard document JSON."""
+
+    from phoenix_core.dashboard import DashboardDocument
+    from phoenix_core.status import build_core_status
+
+    registry = load_registry(config_path)
+    document = DashboardDocument.from_core_status(build_core_status(registry))
+    print(json.dumps(document.to_dict(), sort_keys=True))
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the Phoenix Core CLI."""
 
@@ -131,6 +154,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return inspect_plugins(args.config, args.format)
     if args.command == "status":
         return print_status(args.config)
+    if args.command == "dashboard":
+        return print_dashboard(args.config)
 
     parser.error(f"Unknown command: {args.command}")
     return 2
