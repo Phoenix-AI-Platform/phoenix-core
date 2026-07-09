@@ -1,6 +1,13 @@
 """Phoenix Core public API."""
 
 from phoenix_core.config import PhoenixCoreConfig, PluginFactoryConfig
+from phoenix_core.dashboard import (
+    DASHBOARD_DOCUMENT_SCHEMA_VERSION,
+    DashboardCoreSummary,
+    DashboardDocument,
+    DashboardPlugin,
+    DashboardPluginCommand,
+)
 from phoenix_core.loader import (
     PluginLoadError,
     load_plugin_factory,
@@ -19,6 +26,11 @@ __all__ = [
     "CORE_COMPONENT_NAME",
     "CORE_COMPONENT_VERSION",
     "CORE_STATUS_SCHEMA_VERSION",
+    "DASHBOARD_DOCUMENT_SCHEMA_VERSION",
+    "DashboardCoreSummary",
+    "DashboardDocument",
+    "DashboardPlugin",
+    "DashboardPluginCommand",
     "PhoenixCoreConfig",
     "PluginFactoryConfig",
     "PluginLoadError",
