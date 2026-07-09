@@ -6,6 +6,7 @@ from phoenix_core import (
     PhoenixCoreConfig,
     PluginFactoryConfig,
     PluginRegistry,
+    RepositoryConfig,
     register_plugins_from_core_config,
 )
 
@@ -14,11 +15,34 @@ def test_core_config_builds_from_plugin_paths() -> None:
     config = PhoenixCoreConfig.from_plugin_paths(("phoenix_office.sdk_adapter:create_plugin",))
 
     assert config.plugin_factory_paths() == ("phoenix_office.sdk_adapter:create_plugin",)
+    assert config.repositories == ()
 
 
 def test_plugin_factory_config_rejects_invalid_path() -> None:
     with pytest.raises(ValueError, match="module:function"):
         PluginFactoryConfig("phoenix_office.sdk_adapter.create_plugin")
+
+
+def test_core_config_builds_static_repository_config() -> None:
+    config = PhoenixCoreConfig.from_mapping(
+        {
+            "repositories": [
+                {
+                    "name": "phoenix-core",
+                    "url": "https://github.com/Phoenix-AI-Platform/phoenix-core",
+                    "default_branch": "main",
+                }
+            ]
+        }
+    )
+
+    assert config.repositories == (
+        RepositoryConfig(
+            name="phoenix-core",
+            url="https://github.com/Phoenix-AI-Platform/phoenix-core",
+            default_branch="main",
+        ),
+    )
 
 
 def test_core_config_registers_phoenix_office_plugin() -> None:

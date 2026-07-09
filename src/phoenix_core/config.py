@@ -20,13 +20,24 @@ class PluginFactoryConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class RepositoryConfig:
+    """Static repository declaration for dashboard display."""
+
+    name: str
+    url: str
+    default_branch: str = "main"
+
+
+@dataclass(frozen=True, slots=True)
 class PhoenixCoreConfig:
     """Top-level Phoenix Core configuration."""
 
     plugins: tuple[PluginFactoryConfig, ...] = ()
+    repositories: tuple[RepositoryConfig, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "plugins", tuple(self.plugins))
+        object.__setattr__(self, "repositories", tuple(self.repositories))
 
     @classmethod
     def from_plugin_paths(cls, plugin_paths: tuple[str, ...]) -> PhoenixCoreConfig:
@@ -51,7 +62,32 @@ class PhoenixCoreConfig:
                 raise ValueError("Each plugin config requires a string 'factory_path'.")
             plugin_configs.append(PluginFactoryConfig(factory_path))
 
-        return cls(plugins=tuple(plugin_configs))
+        repositories = values.get("repositories", [])
+        if not isinstance(repositories, list):
+            raise ValueError("Core config 'repositories' must be a list.")
+
+        repository_configs: list[RepositoryConfig] = []
+        for repository in repositories:
+            if not isinstance(repository, dict):
+                raise ValueError("Each repository config must be a table.")
+            name = repository.get("name")
+            url = repository.get("url")
+            default_branch = repository.get("default_branch", "main")
+            if not isinstance(name, str):
+                raise ValueError("Each repository config requires a string 'name'.")
+            if not isinstance(url, str):
+                raise ValueError("Each repository config requires a string 'url'.")
+            if not isinstance(default_branch, str):
+                raise ValueError("Each repository config requires a string 'default_branch'.")
+            repository_configs.append(
+                RepositoryConfig(
+                    name=name,
+                    url=url,
+                    default_branch=default_branch,
+                )
+            )
+
+        return cls(plugins=tuple(plugin_configs), repositories=tuple(repository_configs))
 
     @classmethod
     def from_toml_file(cls, path: str | Path) -> PhoenixCoreConfig:

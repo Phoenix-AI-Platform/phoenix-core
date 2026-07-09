@@ -90,10 +90,16 @@ def build_plugin_inventory(registry: PluginRegistry) -> dict[str, Any]:
     }
 
 
+def load_core_config(config_path: Path) -> PhoenixCoreConfig:
+    """Load Phoenix Core config from TOML."""
+
+    return PhoenixCoreConfig.from_toml_file(config_path)
+
+
 def load_registry(config_path: Path) -> PluginRegistry:
     """Load configured plugins into a registry."""
 
-    config = PhoenixCoreConfig.from_toml_file(config_path)
+    config = load_core_config(config_path)
     registry = PluginRegistry()
     register_plugins_from_core_config(registry, config)
     return registry
@@ -135,11 +141,27 @@ def print_status(config_path: Path) -> int:
 def print_dashboard(config_path: Path) -> int:
     """Load configured plugins and print read-only dashboard document JSON."""
 
-    from phoenix_core.dashboard import DashboardDocument
+    from phoenix_core.dashboard import DashboardDocument, DashboardRepositoryStatus
     from phoenix_core.status import build_core_status
 
-    registry = load_registry(config_path)
+    config = load_core_config(config_path)
+    registry = PluginRegistry()
+    register_plugins_from_core_config(registry, config)
+    repositories = tuple(
+        DashboardRepositoryStatus(
+            name=repository.name,
+            url=repository.url,
+            default_branch=repository.default_branch,
+        )
+        for repository in config.repositories
+    )
     document = DashboardDocument.from_core_status(build_core_status(registry))
+    document = DashboardDocument(
+        schema_version=document.schema_version,
+        core=document.core,
+        plugins=document.plugins,
+        repositories=repositories,
+    )
     print(json.dumps(document.to_dict(), sort_keys=True))
     return 0
 

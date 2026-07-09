@@ -17,6 +17,25 @@ def test_core_config_loads_from_toml_file(tmp_path) -> None:
     assert config.plugin_factory_paths() == ("phoenix_office.sdk_adapter:create_plugin",)
 
 
+def test_core_config_loads_repositories_from_toml_file(tmp_path) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text(
+        (
+            '[[repositories]]\n'
+            'name = "phoenix-core"\n'
+            'url = "https://github.com/Phoenix-AI-Platform/phoenix-core"\n'
+            'default_branch = "main"\n'
+        ),
+        encoding="utf-8",
+    )
+
+    config = PhoenixCoreConfig.from_toml_file(config_path)
+
+    assert config.repositories[0].name == "phoenix-core"
+    assert config.repositories[0].url == "https://github.com/Phoenix-AI-Platform/phoenix-core"
+    assert config.repositories[0].default_branch == "main"
+
+
 def test_core_config_from_toml_registers_office_plugin(tmp_path) -> None:
     config_path = tmp_path / "phoenix_core.toml"
     config_path.write_text(
@@ -46,3 +65,13 @@ def test_core_config_rejects_plugin_without_factory_path() -> None:
 def test_core_config_rejects_non_table_plugin_entry() -> None:
     with pytest.raises(ValueError, match="table"):
         PhoenixCoreConfig.from_mapping({"plugins": ["bad"]})
+
+
+def test_core_config_rejects_non_list_repositories() -> None:
+    with pytest.raises(ValueError, match="repositories.*list"):
+        PhoenixCoreConfig.from_mapping({"repositories": {}})
+
+
+def test_core_config_rejects_repository_without_name() -> None:
+    with pytest.raises(ValueError, match="name"):
+        PhoenixCoreConfig.from_mapping({"repositories": [{"url": "https://example.com"}]})

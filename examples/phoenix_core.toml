@@ -1,4 +1,24 @@
-# Phoenix Core plugin configuration
+# Phoenix Core configuration
 
 [[plugins]]
 factory_path = "phoenix_office.sdk_adapter:create_plugin"
+
+[[repositories]]
+name = "phoenix-pks"
+url = "https://github.com/Phoenix-AI-Platform/phoenix-pks"
+default_branch = "main"
+
+[[repositories]]
+name = "phoenix-sdk"
+url = "https://github.com/Phoenix-AI-Platform/phoenix-sdk"
+default_branch = "main"
+
+[[repositories]]
+name = "phoenix-core"
+url = "https://github.com/Phoenix-AI-Platform/phoenix-core"
+default_branch = "main"
+
+[[repositories]]
+name = "phoenix-office"
+url = "https://github.com/Phoenix-AI-Platform/phoenix-office"
+default_branch = "main"
