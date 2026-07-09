@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
@@ -140,3 +141,20 @@ class DashboardDocument:
                 "summary": self.project_state.summary,
             },
         }
+
+
+def build_dashboard_document(
+    core_status: dict[str, Any],
+    repositories: Iterable[DashboardRepositoryStatus] = (),
+    project_state: DashboardProjectState | None = None,
+) -> DashboardDocument:
+    """Build a complete dashboard document from read-only inputs."""
+
+    base_document = DashboardDocument.from_core_status(core_status)
+    return DashboardDocument(
+        schema_version=base_document.schema_version,
+        core=base_document.core,
+        plugins=base_document.plugins,
+        repositories=tuple(repositories),
+        project_state=project_state,
+    )
