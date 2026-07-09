@@ -6,6 +6,7 @@ from phoenix_core import (
     PhoenixCoreConfig,
     PluginFactoryConfig,
     PluginRegistry,
+    ProjectStateConfig,
     RepositoryConfig,
     register_plugins_from_core_config,
 )
@@ -16,6 +17,7 @@ def test_core_config_builds_from_plugin_paths() -> None:
 
     assert config.plugin_factory_paths() == ("phoenix_office.sdk_adapter:create_plugin",)
     assert config.repositories == ()
+    assert config.project_state is None
 
 
 def test_plugin_factory_config_rejects_invalid_path() -> None:
@@ -42,6 +44,24 @@ def test_core_config_builds_static_repository_config() -> None:
             url="https://github.com/Phoenix-AI-Platform/phoenix-core",
             default_branch="main",
         ),
+    )
+
+
+def test_core_config_builds_project_state_config() -> None:
+    config = PhoenixCoreConfig.from_mapping(
+        {
+            "project_state": {
+                "phase": "Dashboard Foundation",
+                "milestone": "Read-only project visibility",
+                "summary": "Expose safe dashboard data without live external calls.",
+            }
+        }
+    )
+
+    assert config.project_state == ProjectStateConfig(
+        phase="Dashboard Foundation",
+        milestone="Read-only project visibility",
+        summary="Expose safe dashboard data without live external calls.",
     )
 
 
