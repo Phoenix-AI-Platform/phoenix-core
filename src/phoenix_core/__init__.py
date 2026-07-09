@@ -3,10 +3,12 @@
 from phoenix_core.config import PhoenixCoreConfig, PluginFactoryConfig
 from phoenix_core.dashboard import (
     DASHBOARD_DOCUMENT_SCHEMA_VERSION,
+    UNKNOWN_REPOSITORY_STATUS,
     DashboardCoreSummary,
     DashboardDocument,
     DashboardPlugin,
     DashboardPluginCommand,
+    DashboardRepositoryStatus,
 )
 from phoenix_core.loader import (
     PluginLoadError,
@@ -27,10 +29,12 @@ __all__ = [
     "CORE_COMPONENT_VERSION",
     "CORE_STATUS_SCHEMA_VERSION",
     "DASHBOARD_DOCUMENT_SCHEMA_VERSION",
+    "UNKNOWN_REPOSITORY_STATUS",
     "DashboardCoreSummary",
     "DashboardDocument",
     "DashboardPlugin",
     "DashboardPluginCommand",
+    "DashboardRepositoryStatus",
     "PhoenixCoreConfig",
     "PluginFactoryConfig",
     "PluginLoadError",
