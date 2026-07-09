@@ -4,6 +4,7 @@ from phoenix_core import (
     DASHBOARD_DOCUMENT_SCHEMA_VERSION,
     UNKNOWN_REPOSITORY_STATUS,
     DashboardDocument,
+    DashboardProjectState,
     DashboardRepositoryStatus,
     PluginRegistry,
     build_core_status,
@@ -23,6 +24,7 @@ def test_dashboard_document_builds_from_core_status() -> None:
     assert document.plugins[0].plugin_id == "phoenix.office"
     assert document.plugins[0].commands[0].name == "proposal.prepare_fields"
     assert document.repositories == ()
+    assert document.project_state is None
 
 
 def test_dashboard_repository_status_defaults_to_unknown_ci() -> None:
@@ -71,16 +73,19 @@ def test_dashboard_document_serializes_to_deterministic_dict() -> None:
             }
         ],
         "repositories": [],
+        "project_state": None,
     }
 
 
 def test_dashboard_document_serializes_repository_placeholders() -> None:
     document = DashboardDocument(
         schema_version=DASHBOARD_DOCUMENT_SCHEMA_VERSION,
-        core=DashboardDocument.from_core_status({
-            "core": {"component": "phoenix-core", "version": "0.1.0"},
-            "plugin_inventory": {"plugins": []},
-        }).core,
+        core=DashboardDocument.from_core_status(
+            {
+                "core": {"component": "phoenix-core", "version": "0.1.0"},
+                "plugin_inventory": {"plugins": []},
+            }
+        ).core,
         plugins=(),
         repositories=(
             DashboardRepositoryStatus(
@@ -100,3 +105,27 @@ def test_dashboard_document_serializes_repository_placeholders() -> None:
             "latest_commit": None,
         }
     ]
+
+
+def test_dashboard_document_serializes_project_state() -> None:
+    document = DashboardDocument(
+        schema_version=DASHBOARD_DOCUMENT_SCHEMA_VERSION,
+        core=DashboardDocument.from_core_status(
+            {
+                "core": {"component": "phoenix-core", "version": "0.1.0"},
+                "plugin_inventory": {"plugins": []},
+            }
+        ).core,
+        plugins=(),
+        project_state=DashboardProjectState(
+            phase="Dashboard Foundation",
+            milestone="Read-only project visibility",
+            summary="Expose safe dashboard data without live external calls.",
+        ),
+    )
+
+    assert document.to_dict()["project_state"] == {
+        "phase": "Dashboard Foundation",
+        "milestone": "Read-only project visibility",
+        "summary": "Expose safe dashboard data without live external calls.",
+    }

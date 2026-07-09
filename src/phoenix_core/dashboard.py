@@ -40,6 +40,15 @@ class DashboardRepositoryStatus:
 
 
 @dataclass(frozen=True, slots=True)
+class DashboardProjectState:
+    """Dashboard summary of current project progress."""
+
+    phase: str
+    milestone: str
+    summary: str
+
+
+@dataclass(frozen=True, slots=True)
 class DashboardCoreSummary:
     """Dashboard view of Phoenix Core metadata."""
 
@@ -55,6 +64,7 @@ class DashboardDocument:
     core: DashboardCoreSummary
     plugins: tuple[DashboardPlugin, ...]
     repositories: tuple[DashboardRepositoryStatus, ...] = ()
+    project_state: DashboardProjectState | None = None
 
     @classmethod
     def from_core_status(cls, status: dict[str, Any]) -> DashboardDocument:
@@ -122,4 +132,11 @@ class DashboardDocument:
                 }
                 for repository in self.repositories
             ],
+            "project_state": None
+            if self.project_state is None
+            else {
+                "phase": self.project_state.phase,
+                "milestone": self.project_state.milestone,
+                "summary": self.project_state.summary,
+            },
         }

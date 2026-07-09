@@ -8,6 +8,7 @@ from phoenix_core.dashboard import (
     DashboardDocument,
     DashboardPlugin,
     DashboardPluginCommand,
+    DashboardProjectState,
     DashboardRepositoryStatus,
 )
 from phoenix_core.loader import (
@@ -35,6 +36,7 @@ __all__ = [
     "DashboardDocument",
     "DashboardPlugin",
     "DashboardPluginCommand",
+    "DashboardProjectState",
     "DashboardRepositoryStatus",
     "PhoenixCoreConfig",
     "PluginFactoryConfig",
