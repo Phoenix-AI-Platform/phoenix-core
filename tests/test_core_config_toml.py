@@ -53,7 +53,9 @@ def test_core_config_loads_project_state_from_toml_file(tmp_path) -> None:
     assert config.project_state is not None
     assert config.project_state.phase == "Dashboard Foundation"
     assert config.project_state.milestone == "Read-only project visibility"
-    assert config.project_state.summary == "Expose safe dashboard data without live external calls."
+    assert config.project_state.summary == (
+        "Expose safe dashboard data without live external calls."
+    )
 
 
 def test_core_config_from_toml_registers_office_plugin(tmp_path) -> None:
