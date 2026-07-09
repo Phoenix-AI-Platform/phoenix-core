@@ -12,6 +12,7 @@ from importlib import import_module
 
 from phoenix_sdk import PhoenixPlugin
 
+from phoenix_core.config import PhoenixCoreConfig
 from phoenix_core.plugins import PluginRegistry
 
 
@@ -53,3 +54,12 @@ def register_plugins_from_config(
         registered = registry.register(plugin)
         registered_ids.append(registered.plugin_id)
     return tuple(registered_ids)
+
+
+def register_plugins_from_core_config(
+    registry: PluginRegistry,
+    config: PhoenixCoreConfig,
+) -> tuple[str, ...]:
+    """Register plugins declared in typed Phoenix Core config."""
+
+    return register_plugins_from_config(registry, config.plugin_factory_paths())
