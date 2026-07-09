@@ -1,6 +1,6 @@
 """Phoenix Core public API."""
 
-from phoenix_core.config import PhoenixCoreConfig, PluginFactoryConfig
+from phoenix_core.config import PhoenixCoreConfig, PluginFactoryConfig, RepositoryConfig
 from phoenix_core.dashboard import (
     DASHBOARD_DOCUMENT_SCHEMA_VERSION,
     UNKNOWN_REPOSITORY_STATUS,
@@ -40,6 +40,7 @@ __all__ = [
     "PluginLoadError",
     "PluginRegistry",
     "RegisteredPlugin",
+    "RepositoryConfig",
     "build_core_status",
     "load_plugin_factory",
     "register_plugins_from_config",
