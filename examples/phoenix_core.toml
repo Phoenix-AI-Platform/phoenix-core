@@ -1,0 +1,4 @@
+# Phoenix Core plugin configuration
+
+[[plugins]]
+factory_path = "phoenix_office.sdk_adapter:create_plugin"
