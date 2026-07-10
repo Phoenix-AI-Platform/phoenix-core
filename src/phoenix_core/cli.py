@@ -142,7 +142,7 @@ def print_status(config_path: Path) -> int:
 def print_dashboard(config_path: Path) -> int:
     """Load configured plugins and print read-only dashboard document JSON."""
 
-    from phoenix_core.dashboard import DashboardDocument, DashboardProjectState
+    from phoenix_core.dashboard import DashboardProjectState, build_dashboard_document
     from phoenix_core.status import build_core_status
 
     config = load_core_config(config_path)
@@ -155,11 +155,8 @@ def print_dashboard(config_path: Path) -> int:
             milestone=config.project_state.milestone,
             summary=config.project_state.summary,
         )
-    document = DashboardDocument.from_core_status(build_core_status(registry))
-    document = DashboardDocument(
-        schema_version=document.schema_version,
-        core=document.core,
-        plugins=document.plugins,
+    document = build_dashboard_document(
+        core_status=build_core_status(registry),
         repositories=collect_repository_statuses(config.repositories),
         project_state=project_state,
     )
