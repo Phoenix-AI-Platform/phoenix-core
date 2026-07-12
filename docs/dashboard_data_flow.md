@@ -4,7 +4,7 @@
 
 This document describes the current read-only data flow that builds the Phoenix Core dashboard document.
 
-It documents existing behavior only. It does not add file loading, network access, command execution, or a dashboard user interface.
+The dashboard can load approved plugin metadata, static repository declarations, and one explicit project-state source. It does not call network services, execute plugin commands, infer project state from prose, or run a dashboard server.
 
 ## Current Output Contract
 
@@ -39,15 +39,18 @@ Phoenix Core TOML config
   |     -> DashboardRepositoryStatus records
   |
   +-- optional [project_state]
-        -> PhoenixCoreConfig.project_state
         -> DashboardProjectState
 
-build_core_status(...)
+optional caller-selected --project-state-json
+  -> load_dashboard_project_state_from_json_file(...)
+  -> DashboardProjectState
+
+exactly one project-state source
++ Core status
 + repository status records
-+ optional DashboardProjectState
   -> build_dashboard_document(...)
   -> DashboardDocument
-  -> deterministic JSON from `phoenix-core dashboard`
+  -> deterministic sorted JSON from `phoenix-core dashboard`
 ```
 
 ## Plugin Metadata Path
@@ -71,27 +74,47 @@ Repository declarations come from explicit Core configuration.
 
 `collect_repository_statuses(...)` converts those declarations, plus any caller-supplied status overrides, into dashboard repository records.
 
-Without an override, CI status remains `unknown` and latest commit remains unset. Phoenix Core does not currently call GitHub or a CI provider to populate these values.
+Without an override, CI status remains `unknown` and latest commit remains unset. Phoenix Core does not call GitHub or a CI provider to populate these values.
 
-## Project-State Paths
+## Project-State Sources
 
-Phoenix Core currently has two explicit project-state seams.
+Phoenix Core supports exactly one project-state source for each dashboard invocation.
 
-### CLI configuration path
+### Static Core configuration
 
-The dashboard CLI reads an optional `[project_state]` section from the supplied Core TOML configuration and converts it into `DashboardProjectState`.
-
-### PKS mapping seam
-
-`read_dashboard_project_state_from_mapping(...)` accepts an already-loaded mapping with:
+An optional `[project_state]` section in the supplied Core TOML configuration may contain:
 
 - `phase`
 - `milestone`
 - `summary`
 
-It validates those values and returns `DashboardProjectState`.
+Existing static configuration behavior remains supported.
 
-This seam does not read Phoenix PKS Markdown, JSON, or any other file. A future integration layer must load and select the mapping explicitly before passing it to Core.
+### Explicit JSON file
+
+The caller may supply one UTF-8 JSON object:
+
+```bash
+phoenix-core dashboard \
+  --config examples/phoenix_core.toml \
+  --project-state-json ../phoenix-pks/project/dashboard-project-state.json
+```
+
+The JSON object must contain string values for:
+
+- `phase`
+- `milestone`
+- `summary`
+
+The path is caller-controlled. Core does not search for PKS files or infer a default location.
+
+`load_dashboard_project_state_from_json_file(...)` parses the explicit file and delegates field validation to the existing PKS mapping seam.
+
+### Conflict behavior
+
+Supplying both `[project_state]` in Core TOML and `--project-state-json` is rejected. Core does not silently choose or merge competing project-state sources.
+
+Invalid JSON, a non-object top-level value, unreadable input, or invalid field types also fail before dashboard output is produced.
 
 ## Assembly Boundary
 
@@ -101,14 +124,15 @@ This seam does not read Phoenix PKS Markdown, JSON, or any other file. A future 
 - Repository status records
 - Optional project state
 
-It returns a frozen `DashboardDocument`, which is then serialized deterministically through `to_dict()` and sorted JSON output.
+It returns a frozen `DashboardDocument`, which is serialized deterministically through `to_dict()` and sorted JSON output.
 
 ## Explicitly Out of Scope
 
 The current dashboard data flow does not:
 
-- Read Phoenix PKS files
+- Parse PKS Markdown or YAML front matter
 - Infer project state from prose
+- Automatically discover or synchronize PKS state
 - Call GitHub or CI APIs
 - Inspect live branches or commits
 - Execute plugin commands
@@ -120,9 +144,9 @@ The current dashboard data flow does not:
 
 ## Safe Next Integration Boundary
 
-A future PKS integration PR may add a read-only loader that produces the exact mapping accepted by `read_dashboard_project_state_from_mapping(...)`.
+The end-to-end local read-only path can now be verified by explicitly passing the reviewed Phoenix PKS projection to the Core dashboard command.
 
-That work should remain separate from:
+Future work should remain separate from:
 
 - Dashboard UI work
 - Live repository or CI collection
