@@ -26,6 +26,7 @@ from phoenix_core.loader import (
 from phoenix_core.pks import (
     PKSProjectStateRecord,
     dashboard_project_state_from_pks_record,
+    load_dashboard_project_state_from_json_file,
     read_dashboard_project_state_from_mapping,
 )
 from phoenix_core.plugins import PluginRegistry, RegisteredPlugin
@@ -62,6 +63,7 @@ __all__ = [
     "build_dashboard_document",
     "collect_repository_statuses",
     "dashboard_project_state_from_pks_record",
+    "load_dashboard_project_state_from_json_file",
     "load_plugin_factory",
     "read_dashboard_project_state_from_mapping",
     "register_plugins_from_config",
