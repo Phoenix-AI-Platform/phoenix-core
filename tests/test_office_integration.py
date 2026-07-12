@@ -4,7 +4,7 @@ import pytest
 from phoenix_office.sdk_adapter import create_plugin
 from phoenix_sdk import CommandRequest, PhoenixPlugin
 
-from phoenix_core import PluginRegistry
+from phoenix_core import PluginRegistry, ResolvedCommand, resolve_command
 
 
 def test_core_registers_phoenix_office_plugin_metadata() -> None:
@@ -30,6 +30,38 @@ def test_core_lists_phoenix_office_commands_without_execution() -> None:
         "proposal.prepare_fields",
         "proposal.generate_docx",
     )
+
+
+@pytest.mark.parametrize(
+    ("command_name", "description"),
+    (
+        (
+            "proposal.prepare_fields",
+            "Prepare deterministic proposal fields from validated proposal input.",
+        ),
+        (
+            "proposal.generate_docx",
+            "Render a DOCX proposal from validated input and an explicit template.",
+        ),
+    ),
+)
+def test_core_resolves_phoenix_office_command_metadata_without_execution(
+    command_name: str,
+    description: str,
+) -> None:
+    registry = PluginRegistry()
+    registry.register(create_plugin())
+
+    resolved = resolve_command(registry, "phoenix.office", command_name)
+
+    assert resolved == ResolvedCommand(
+        plugin_id="phoenix.office",
+        plugin_version="0.1.0",
+        command_name=command_name,
+        description=description,
+    )
+    assert not hasattr(resolved, "command")
+    assert not hasattr(resolved, "execute")
 
 
 def test_core_does_not_execute_phoenix_office_commands() -> None:
