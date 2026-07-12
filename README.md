@@ -21,6 +21,12 @@ The first responsibility is intentionally small:
 - Deterministic plugin workflows remain inside their plugin repositories.
 - Platform-level knowledge lives in `phoenix-pks`.
 
+## Canonical Phoenix Knowledge
+
+Platform-wide project state, architecture, decisions, roadmap, and agent guidance live in [`phoenix-pks`](https://github.com/Phoenix-AI-Platform/phoenix-pks).
+
+Start with the [Project State](https://github.com/Phoenix-AI-Platform/phoenix-pks/blob/main/project/02_PROJECT_STATE.md), [Current Sprint](https://github.com/Phoenix-AI-Platform/phoenix-pks/blob/main/project/05_CURRENT_SPRINT.md), and [ADR Index](https://github.com/Phoenix-AI-Platform/phoenix-pks/blob/main/adr/README.md). Core-specific implementation documentation remains authoritative in this repository.
+
 ## Development
 
 ```bash
