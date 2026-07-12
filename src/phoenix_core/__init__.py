@@ -25,6 +25,11 @@ from phoenix_core.dashboard import (
     DashboardRepositoryStatus,
     build_dashboard_document,
 )
+from phoenix_core.execution_planning import (
+    ExecutionPlan,
+    ExecutionPlanValidationError,
+    create_execution_plan,
+)
 from phoenix_core.loader import (
     PluginLoadError,
     load_plugin_factory,
@@ -61,6 +66,8 @@ __all__ = [
     "DashboardPluginCommand",
     "DashboardProjectState",
     "DashboardRepositoryStatus",
+    "ExecutionPlan",
+    "ExecutionPlanValidationError",
     "PKSProjectStateRecord",
     "PhoenixCoreConfig",
     "PluginFactoryConfig",
@@ -75,6 +82,7 @@ __all__ = [
     "build_core_status",
     "build_dashboard_document",
     "collect_repository_statuses",
+    "create_execution_plan",
     "dashboard_project_state_from_pks_record",
     "load_dashboard_project_state_from_json_file",
     "load_plugin_factory",
