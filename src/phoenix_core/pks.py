@@ -14,6 +14,8 @@ from typing import Any
 
 from phoenix_core.dashboard import DashboardProjectState
 
+_PROJECT_STATE_JSON_FIELDS = frozenset({"phase", "milestone", "summary"})
+
 
 @dataclass(frozen=True, slots=True)
 class PKSProjectStateRecord:
@@ -71,5 +73,12 @@ def load_dashboard_project_state_from_json_file(path: Path) -> DashboardProjectS
 
     if not isinstance(values, dict):
         raise ValueError("PKS project state file must contain a JSON object.")
+
+    actual_fields = frozenset(values)
+    if actual_fields != _PROJECT_STATE_JSON_FIELDS:
+        expected = ", ".join(sorted(_PROJECT_STATE_JSON_FIELDS))
+        raise ValueError(
+            "PKS project state file must contain exactly these fields: " f"{expected}."
+        )
 
     return read_dashboard_project_state_from_mapping(values)
