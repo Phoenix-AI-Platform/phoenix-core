@@ -4,7 +4,13 @@ import pytest
 from phoenix_office.sdk_adapter import create_plugin
 from phoenix_sdk import CommandRequest, PhoenixPlugin
 
-from phoenix_core import PluginRegistry, ResolvedCommand, resolve_command
+from phoenix_core import (
+    ExecutionPlan,
+    PluginRegistry,
+    ResolvedCommand,
+    create_execution_plan,
+    resolve_command,
+)
 
 
 def test_core_registers_phoenix_office_plugin_metadata() -> None:
@@ -53,6 +59,12 @@ def test_core_resolves_phoenix_office_command_metadata_without_execution(
     registry.register(create_plugin())
 
     resolved = resolve_command(registry, "phoenix.office", command_name)
+    plan = create_execution_plan(
+        resolved,
+        request_id=f"office-test-{command_name}",
+        approval_reason="Human approval is required before Phoenix Office execution.",
+        approval_summary=f"Review Phoenix Office command {command_name}.",
+    )
 
     assert resolved == ResolvedCommand(
         plugin_id="phoenix.office",
@@ -60,6 +72,27 @@ def test_core_resolves_phoenix_office_command_metadata_without_execution(
         command_name=command_name,
         description=description,
     )
+    assert plan == ExecutionPlan(
+        resolved_command=resolved,
+        request_id=f"office-test-{command_name}",
+        approval_reason="Human approval is required before Phoenix Office execution.",
+        approval_summary=f"Review Phoenix Office command {command_name}.",
+    )
+    assert plan.resolved_command == resolved
+    assert plan.resolved_command.plugin_id == "phoenix.office"
+    assert plan.resolved_command.plugin_version == "0.1.0"
+    assert plan.resolved_command.command_name == command_name
+    assert plan.resolved_command.description == description
+    assert plan.request_id == f"office-test-{command_name}"
+    assert plan.approval_reason == (
+        "Human approval is required before Phoenix Office execution."
+    )
+    assert plan.approval_summary == f"Review Phoenix Office command {command_name}."
+    assert not hasattr(plan, "command")
+    assert not hasattr(plan, "execute")
+    assert not hasattr(plan, "payload")
+    assert not hasattr(plan, "approval_decision")
+    assert not hasattr(plan, "approved")
     assert not hasattr(resolved, "command")
     assert not hasattr(resolved, "execute")
 
