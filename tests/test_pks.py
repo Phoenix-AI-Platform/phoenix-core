@@ -98,3 +98,37 @@ def test_load_dashboard_project_state_rejects_non_object_json(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="JSON object"):
         load_dashboard_project_state_from_json_file(state_path)
+
+
+def test_load_dashboard_project_state_rejects_missing_json_field(tmp_path) -> None:
+    state_path = tmp_path / "project-state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "phase": "Dashboard Foundation",
+                "summary": "The milestone field is missing.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="exactly these fields"):
+        load_dashboard_project_state_from_json_file(state_path)
+
+
+def test_load_dashboard_project_state_rejects_extra_json_field(tmp_path) -> None:
+    state_path = tmp_path / "project-state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "phase": "Dashboard Foundation",
+                "milestone": "Strict JSON shape",
+                "summary": "Reject unofficial project-state fields.",
+                "status": "active",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="exactly these fields"):
+        load_dashboard_project_state_from_json_file(state_path)
