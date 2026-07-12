@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from phoenix_core.cli import (
     PLUGIN_INVENTORY_SCHEMA_VERSION,
+    DashboardProjectStateInputError,
     inspect_plugins,
     main,
     print_dashboard,
@@ -132,6 +135,60 @@ def test_print_dashboard_outputs_configured_project_state(tmp_path, capsys) -> N
     }
 
 
+def test_print_dashboard_outputs_explicit_project_state_json(tmp_path, capsys) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text("", encoding="utf-8")
+    state_path = tmp_path / "dashboard-project-state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "phase": "Read-Only Platform Integration",
+                "milestone": "Explicit PKS-to-Core dashboard path",
+                "summary": "Consume caller-selected project state without inference.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    exit_code = print_dashboard(config_path, project_state_json=state_path)
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["project_state"] == {
+        "phase": "Read-Only Platform Integration",
+        "milestone": "Explicit PKS-to-Core dashboard path",
+        "summary": "Consume caller-selected project state without inference.",
+    }
+
+
+def test_print_dashboard_rejects_multiple_project_state_sources(tmp_path) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text(
+        (
+            '[project_state]\n'
+            'phase = "Configured"\n'
+            'milestone = "TOML source"\n'
+            'summary = "Project state is already configured."\n'
+        ),
+        encoding="utf-8",
+    )
+    state_path = tmp_path / "dashboard-project-state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "phase": "Projected",
+                "milestone": "JSON source",
+                "summary": "A second source must be rejected.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DashboardProjectStateInputError, match="both Core config"):
+        print_dashboard(config_path, project_state_json=state_path)
+
+
 def test_main_inspect_plugins_command(tmp_path, capsys) -> None:
     config_path = tmp_path / "phoenix_core.toml"
     config_path.write_text(
@@ -192,3 +249,56 @@ def test_main_dashboard_command_outputs_json(tmp_path, capsys) -> None:
     assert exit_code == 0
     assert payload["schema_version"] == "phoenix.dashboard_document.v1"
     assert payload["plugins"][0]["commands"][0]["name"] == "proposal.prepare_fields"
+
+
+def test_main_dashboard_accepts_project_state_json(tmp_path, capsys) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text("", encoding="utf-8")
+    state_path = tmp_path / "dashboard-project-state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "phase": "Read-Only Platform Integration",
+                "milestone": "CLI input",
+                "summary": "Load explicit project state through the dashboard command.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "dashboard",
+            "--config",
+            str(config_path),
+            "--project-state-json",
+            str(state_path),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload["project_state"]["milestone"] == "CLI input"
+
+
+def test_main_dashboard_reports_invalid_project_state_json(tmp_path, capsys) -> None:
+    config_path = tmp_path / "phoenix_core.toml"
+    config_path.write_text("", encoding="utf-8")
+    state_path = tmp_path / "dashboard-project-state.json"
+    state_path.write_text("{not-json}", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc_info:
+        main(
+            [
+                "dashboard",
+                "--config",
+                str(config_path),
+                "--project-state-json",
+                str(state_path),
+            ]
+        )
+
+    captured = capsys.readouterr()
+    assert exc_info.value.code == 2
+    assert "must contain valid JSON" in captured.err
