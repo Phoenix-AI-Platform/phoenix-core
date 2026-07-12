@@ -1,5 +1,13 @@
 """Phoenix Core public API."""
 
+from phoenix_core.command_resolution import (
+    CommandContractMismatchError,
+    CommandNotFoundError,
+    CommandResolutionError,
+    PluginNotFoundError,
+    ResolvedCommand,
+    resolve_command,
+)
 from phoenix_core.config import (
     PhoenixCoreConfig,
     PluginFactoryConfig,
@@ -44,6 +52,9 @@ __all__ = [
     "CORE_STATUS_SCHEMA_VERSION",
     "DASHBOARD_DOCUMENT_SCHEMA_VERSION",
     "UNKNOWN_REPOSITORY_STATUS",
+    "CommandContractMismatchError",
+    "CommandNotFoundError",
+    "CommandResolutionError",
     "DashboardCoreSummary",
     "DashboardDocument",
     "DashboardPlugin",
@@ -54,11 +65,13 @@ __all__ = [
     "PhoenixCoreConfig",
     "PluginFactoryConfig",
     "PluginLoadError",
+    "PluginNotFoundError",
     "PluginRegistry",
     "ProjectStateConfig",
     "RegisteredPlugin",
     "RepositoryConfig",
     "RepositoryStatusOverride",
+    "ResolvedCommand",
     "build_core_status",
     "build_dashboard_document",
     "collect_repository_statuses",
@@ -68,4 +81,5 @@ __all__ = [
     "read_dashboard_project_state_from_mapping",
     "register_plugins_from_config",
     "register_plugins_from_core_config",
+    "resolve_command",
 ]
