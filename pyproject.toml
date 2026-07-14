@@ -9,8 +9,8 @@ description = "Shared platform core for the Phoenix AI Platform."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "phoenix-office @ git+https://github.com/Phoenix-AI-Platform/phoenix-office.git",
-    "phoenix-sdk @ git+https://github.com/Phoenix-AI-Platform/phoenix-sdk.git",
+    "phoenix-office @ git+https://github.com/Phoenix-AI-Platform/phoenix-office.git@d53f640f92d763d8908cc7a20e4743936d94a4b5",
+    "phoenix-sdk @ git+https://github.com/Phoenix-AI-Platform/phoenix-sdk.git@972770eb68d51a4f476bb03d67b1dab56f5b8b5c",
 ]
 
 [project.scripts]
